@@ -12,12 +12,18 @@ OTP_FILE = os.path.join(Config.BASE_DIR, "otp.txt")
 
 def read_otp_file():
     try:
-        with open(OTP_FILE, encoding="utf-8") as f:
-            otp = f.read().strip()
+        with open(OTP_FILE, "rb") as f:
+            raw = f.read()
     except FileNotFoundError:
         return ""
+    # PowerShell 'echo > file' UTF-16 likhta hai, cmd/bash UTF-8 - dono sambhalo
+    if raw.startswith((b"\xff\xfe", b"\xfe\xff")):
+        text = raw.decode("utf-16")
+    else:
+        text = raw.decode("utf-8-sig", errors="ignore")
+    otp = "".join(ch for ch in text if ch.isdigit())
     remove_otp_file()
-    return otp if otp.isdigit() else ""
+    return otp
 
 
 def remove_otp_file():
