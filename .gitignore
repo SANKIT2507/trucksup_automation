@@ -1,0 +1,22 @@
+# Secrets / local config
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# IDE
+.idea/
+.vscode/
+
+# Generated test output
+reports/
+screenshots/
+logs/
+xml_screenshots/
+
+# DigiLocker OTP handoff file
+otp.txt
