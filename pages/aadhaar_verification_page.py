@@ -75,6 +75,21 @@ class AadhaarVerificationPage(BasePage):
         time.sleep(1)    # layout shift (PIN field hide) settle
         self.logger.info(f"Checkbox tapped: {rid}")
 
+    def _digilocker_first_page(self, timeout=60):
+        """
+        Continue to DigiLocker ke baad pehla page: 'signin' (Other ID tab) ya
+        'consent' (Allow) - agar DigiLocker pichhli baar se signed in hai.
+        """
+        def which(d):
+            if d.find_elements(*DL.OTHER_ID_TAB):
+                return "signin"
+            if d.find_elements(*DL.ALLOW_BUTTON):
+                return "consent"
+            return False
+        page = WebDriverWait(self.driver, timeout, poll_frequency=1).until(which)
+        self.logger.info(f"DigiLocker first page: {page}")
+        return page
+
     def sign_in_digilocker_with_aadhaar(self, aadhaar_number):
         """Other ID tab -> Aadhaar -> number -> OTP mode -> terms -> Sign In"""
         self.logger.info("DigiLocker sign-in page...")
@@ -174,8 +189,13 @@ class AadhaarVerificationPage(BasePage):
         self.logger.info("🆔 Starting Aadhaar Verification via DigiLocker...")
         self.enter_aadhaar_number(aadhaar_number)
         self.click_continue_to_digilocker()
-        self.sign_in_digilocker_with_aadhaar(aadhaar_number)
-        self.wait_for_manual_otp(otp_timeout)
+
+        if self._digilocker_first_page() == "signin":
+            self.sign_in_digilocker_with_aadhaar(aadhaar_number)
+            self.wait_for_manual_otp(otp_timeout)
+        else:
+            # Phone par DigiLocker ka login cookie bacha hai -> seedha consent
+            self.logger.info("DigiLocker pehle se signed in - sign-in aur OTP skip, seedha consent")
         self.allow_consent()
         self.wait_until_back_in_app()
         self.logger.info("✅ Aadhaar verification via DigiLocker complete!")
