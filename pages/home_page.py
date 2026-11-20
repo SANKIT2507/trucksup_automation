@@ -4,6 +4,8 @@ TrucksUp Automation - Home Page
 Home Screen validation.
 """
 
+from appium.webdriver.common.appiumby import AppiumBy
+
 from pages.base_page import BasePage
 from locators import HomePageLocators, TrucksHubHomeLocators
 from utils.logger import get_logger
@@ -43,3 +45,27 @@ class HomePage(BasePage):
     def get_home_element(self):
         """Home element return karo"""
         return self.find_element(HomePageLocators.HOME_IMAGE)
+
+    def logout_if_logged_in(self, timeout=5):
+        """
+        Agar app pehle se logged in hai (Home khula hai), toh hamburger menu ->
+        Logout -> Yes. Test phir login screen se shuru hota hai.
+        Returns True agar logout kiya.
+        """
+        # "Do you want to logout?" dialog pehle se khula ho toh seedha Yes
+        if self.click_if_visible(HomePageLocators.LOGOUT_CONFIRM_YES, timeout=2):
+            logger.info("Logout dialog pehle se khula tha - Yes clicked")
+            return True
+        if not self.is_element_visible(HomePageLocators.MENU_BUTTON, timeout=timeout):
+            return False
+        logger.info("App pehle se logged in hai - hamburger menu se Logout kar rahe hain")
+        self.dismiss_promo_popup(timeout=3)
+        self.click(HomePageLocators.MENU_BUTTON)
+        self.driver.find_element(
+            AppiumBy.ANDROID_UIAUTOMATOR,
+            "new UiScrollable(new UiSelector().scrollable(true))"
+            f'.scrollIntoView(new UiSelector().resourceId("{HomePageLocators.LOGOUT_ID}"))',
+        ).click()
+        self.click(HomePageLocators.LOGOUT_CONFIRM_YES)
+        logger.info("Logout: Yes clicked")
+        return True

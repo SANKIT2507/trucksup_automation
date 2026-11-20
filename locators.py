@@ -174,10 +174,11 @@ class BusinessDocsLocators:
 class KycSelectionLocators:
     """KYC Verification screen: 3 options, koi ek select karna hai"""
     PROCEED_BUTTON = (AppiumBy.XPATH, '//android.widget.TextView[@text="Proceed"]')
-    AADHAAR_CARD = (AppiumBy.XPATH, '//android.widget.TextView[@text="Aadhaar Card" or @text="Aadhar Card" or @text="Aadhaar card"]')
-    PAN_CARD = (AppiumBy.XPATH, '//android.widget.TextView[@text="PAN Card"]')
-    DRIVING_LICENSE = (AppiumBy.XPATH, '//android.widget.TextView[@text="Driving License"]')
-    SCREEN_TITLE = (AppiumBy.XPATH, '//android.widget.TextView[@text="KYC Verification"]')
+    # Nov 2026 redesign: title "Profile Verification", cards have ids, Proceed shows after a card is tapped
+    AADHAAR_CARD = (AppiumBy.ID, "com.logistics.trucksup:id/aadharCard")
+    PAN_CARD = (AppiumBy.ID, "com.logistics.trucksup:id/panCard")
+    DRIVING_LICENSE = (AppiumBy.ID, "com.logistics.trucksup:id/drivingCard")
+    SCREEN_TITLE = AADHAAR_CARD  # only this screen has the three cards
 
 
 class AadhaarVerificationLocators:
@@ -277,6 +278,10 @@ class HomePageLocators:
     PROMO_POPUP_CLOSE = (AppiumBy.ID, "com.logistics.trucksup:id/removeImag")
     # Android 13+ system dialog: "Allow TrucksUp to send you notifications?" (fresh data par)
     NOTIFICATION_ALLOW = (AppiumBy.ID, "com.android.permissioncontroller:id/permission_allow_button")
+    # Hamburger menu -> sabse neeche Logout -> "Do you want to logout?" Yes
+    MENU_BUTTON = (AppiumBy.ID, "com.logistics.trucksup:id/bt_menu")
+    LOGOUT_ID = "com.logistics.trucksup:id/nav_logout"
+    LOGOUT_CONFIRM_YES = (AppiumBy.ID, "com.logistics.trucksup:id/confiram")
 
 
 class TrucksHubHomeLocators:

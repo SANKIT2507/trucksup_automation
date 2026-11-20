@@ -149,9 +149,22 @@ class RegistrationPage(BasePage):
 
     # ─── Screen 9: Success ───
 
-    def wait_for_onboarding_success(self, timeout=30):
-        WebDriverWait(self.driver, timeout).until(
-            lambda d: "OnBoardingSucessActivity" in (d.current_activity or "")
-            or "MainActivity" in (d.current_activity or "")
-        )
+    def wait_for_onboarding_success(self, timeout=90, retry_submit=False):
+        """
+        Submit ke baad success/Home ka wait. Test server ka trucksupplier/create
+        20-30s+ leta hai, aur kabhi response ke baad bhi form par hi ruk jaata hai.
+        retry_submit=True: timeout par Submit dobara dabao aur ek baar aur wait karo.
+        """
+        def done(d):
+            act = d.current_activity or ""
+            return "OnBoardingSucessActivity" in act or "MainActivity" in act
+
+        try:
+            WebDriverWait(self.driver, timeout, poll_frequency=2).until(done)
+        except TimeoutException:
+            if not (retry_submit and self.is_element_visible(V.SUBMIT_BUTTON, timeout=2)):
+                raise
+            self.logger.warning(f"{timeout}s mein aage nahi badha - Submit dobara dabaya")
+            self.click(V.SUBMIT_BUTTON)
+            WebDriverWait(self.driver, timeout, poll_frequency=2).until(done)
         self.logger.info(f"Onboarding success: {self.driver.current_activity}")

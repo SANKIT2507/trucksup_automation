@@ -33,6 +33,8 @@ def login_and_fill_profile(driver, mobile_number, otp, profile_type):
     """STEP 1-5: popup -> mobile -> OTP -> location -> profile (photo, naam, profile type)"""
     logger.info("[INIT] Waiting for app to fully launch...")
     time.sleep(5)
+    if HomePage(driver).logout_if_logged_in():
+        time.sleep(3)
 
     logger.info("[STEP 1] Checking for Google Phone Hint Popup...")
     welcome_page = WelcomePage(driver)
@@ -116,7 +118,7 @@ class TestTrucksUpOnboarding:
         # STEP 8: Vehicle + preferred lane -> Submit
         logger.info("[STEP 8] Vehicle Details...")
         registration.submit_vehicle_details()
-        registration.wait_for_onboarding_success()
+        registration.wait_for_onboarding_success(retry_submit=True)
 
         # STEP 9: Home
         land_on_home(driver, "onboarding_complete")
